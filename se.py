@@ -1,8 +1,8 @@
-# Trigger redeploy
+# app.py
 import streamlit as st
 from gtts import gTTS
 from io import BytesIO
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 
 # --------------------
 # Streamlit App Title
@@ -12,63 +12,81 @@ st.title("🔊 Text-to-Speech with Translation")
 st.markdown("Convert text to speech with optional translation. Type text or upload a file.")
 
 # --------------------
-# Language Options
+# Language Options (display name -> code)
 # --------------------
-# Format: short_code: Full name
-languages = {
-    'en': 'English', 'hi': 'Hindi', 'mr': 'Marathi', 'gu': 'Gujarati', 'ta': 'Tamil', 'te': 'Telugu',
-    'bn': 'Bengali', 'pa': 'Punjabi', 'ur': 'Urdu', 'kn': 'Kannada', 'ml': 'Malayalam', 'fr': 'French',
-    'es': 'Spanish', 'de': 'German', 'it': 'Italian', 'ja': 'Japanese', 'ko': 'Korean', 'zh-cn': 'Chinese (Simplified)'
+LANGUAGES = {
+    'English': 'en', 'Hindi': 'hi', 'Marathi': 'mr', 'Gujarati': 'gu', 'Tamil': 'ta',
+    'Telugu': 'te', 'Bengali': 'bn', 'Punjabi': 'pa', 'Urdu': 'ur', 'Kannada': 'kn',
+    'Malayalam': 'ml', 'French': 'fr', 'Spanish': 'es', 'German': 'de', 'Italian': 'it',
+    'Japanese': 'ja', 'Korean': 'ko', 'Chinese (Simplified)': 'zh-cn'
 }
 
-# Dropdowns
-src_lang = st.selectbox("Source Language (text language)", options=languages.keys(), format_func=lambda x: languages[x])
-target_lang = st.selectbox("Target Language (for speech)", options=languages.keys(), format_func=lambda x: languages[x])
+# UI controls
+src_lang_name = st.selectbox("Source Language (text language)", options=["Auto Detect"] + list(LANGUAGES.keys()))
+target_lang_name = st.selectbox("Target Language (for speech & translation)", options=list(LANGUAGES.keys()))
 
 # --------------------
 # Text Input Section
 # --------------------
-text_input = st.text_area("Enter your text here:")
+text_input = st.text_area("Enter your text here:", height=180)
 
 uploaded_file = st.file_uploader("Or upload a text file (.txt)", type=["txt"])
 if uploaded_file is not None:
-    text_input = uploaded_file.read().decode("utf-8")
+    try:
+        text_input = uploaded_file.read().decode("utf-8")
+    except Exception:
+        st.error("Couldn't read the uploaded file. Make sure it's a UTF-8 encoded .txt file.")
+
+# Voice speed option
+slow = st.checkbox("Speak slowly (slow speed)")
 
 # --------------------
 # Generate TTS
 # --------------------
 if st.button("Convert to Speech"):
-    if text_input.strip() == "":
+    if not text_input or not text_input.strip():
         st.warning("Please enter some text or upload a file.")
     else:
         try:
-            # Translate text if needed
-            translator = Translator()
-            if src_lang != target_lang:
-                translated = translator.translate(text_input, src=src_lang, dest=target_lang).text
+            # Prepare language codes
+            src_code = "auto" if src_lang_name == "Auto Detect" else LANGUAGES[src_lang_name]
+            tgt_code = LANGUAGES[target_lang_name]
+
+            # Translate if source != target (if user selected Auto Detect, we'll still request translation)
+            translated_text = text_input
+            if src_code != tgt_code:
+                try:
+                    # GoogleTranslator supports source='auto'
+                    translated_text = GoogleTranslator(source=src_code, target=tgt_code).translate(text_input)
+                except Exception as te:
+                    # translation failed: fallback to original text and show message
+                    st.warning(f"Translation failed, using original text. ({te})")
+                    translated_text = text_input
+
+            # Show translated text
+            if translated_text != text_input:
+                st.success(f"Translated text ({target_lang_name}):")
+                st.write(translated_text)
             else:
-                translated = text_input
+                st.info("Using original text (no translation performed).")
 
-            # Convert to speech
-            tts = gTTS(text=translated, lang=target_lang)
-            audio_data = BytesIO()
-            tts.write_to_fp(audio_data)
-            audio_data.seek(0)
+            # Create TTS audio
+            tts = gTTS(text=translated_text, lang=tgt_code, slow=slow)
+            audio_buffer = BytesIO()
+            tts.write_to_fp(audio_buffer)
+            audio_buffer.seek(0)
 
-            # Play audio
-            st.audio(audio_data, format="audio/mp3")
+            # Play in browser
+            st.audio(audio_buffer.getvalue(), format="audio/mp3")
 
-            # Download link
+            # Download button (use bytes)
             st.download_button(
-                label="⬇️ Download Audio",
-                data=audio_data,
+                label="⬇️ Download Audio (MP3)",
+                data=audio_buffer.getvalue(),
                 file_name="speech.mp3",
                 mime="audio/mp3"
             )
 
-            # Show translated text
-            st.success(f"Translated Text ({languages[target_lang]}):")
-            st.write(translated)
-
         except Exception as e:
-            st.error(f"Error: {str(e)}")
+            st.error(f"Error: {e}")
+            st.write("If you're running on Streamlit Cloud, ensure requirements.txt includes deep-translator and gTTS.")
