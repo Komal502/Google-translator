@@ -1,87 +1,77 @@
-🌍 Text-to-Speech Translator App
-A simple Streamlit web app that lets you:
-✅ Translate text from one language to another using Google Translator API (deep_translator)
-✅ Convert translated text into speech (Text-to-Speech)
-✅ Download the generated audio file
-✅ Runs directly in your browser after deployment on Streamlit Cloud
+# 🎙️ Multi-Language Text-to-Speech Translator
 
-🚀 Features
-Multi-language support – choose your input and output languages
+Convert text into speech in multiple languages with optional translation.
 
-Text translation – powered by deep_translator
+---
 
-Text-to-Speech – powered by gTTS
+## 🚀 Features
 
-Audio playback – listen to translated text
+* 🌐 **Multi-language support** – choose your input and output languages
+* 🔄 **Text translation** – powered by [deep\_translator](https://pypi.org/project/deep-translator/)
+* 🗣️ **Text-to-Speech** – powered by [gTTS](https://pypi.org/project/gTTS/)
+* 🎧 **Audio playback** – listen to translated text instantly
+* 💾 **Download audio** – save the spoken file to your device
 
-Download audio – save the spoken file to your device
+---
 
-🛠️ Installation & Setup
-1️⃣ Clone the Repository
-bash
-Copy
-Edit
+## 🛠️ Installation & Setup
+
+### 1️⃣ Clone the Repository
+
+```bash
 git clone https://github.com/your-username/your-repo-name.git
 cd your-repo-name
-2️⃣ Create Virtual Environment (Optional but Recommended)
-bash
-Copy
-Edit
+```
+
+### 2️⃣ Create a Virtual Environment *(Optional but Recommended)*
+
+```bash
+# Mac / Linux
+python3 -m venv venv
+source venv/bin/activate
+
+# Windows
 python -m venv venv
-source venv/bin/activate  # Mac/Linux
-venv\Scripts\activate     # Windows
-3️⃣ Install Requirements
-bash
-Copy
-Edit
+venv\Scripts\activate
+```
+
+### 3️⃣ Install Requirements
+
+```bash
 pip install -r requirements.txt
-4️⃣ Run the App Locally
-bash
-Copy
-Edit
+```
+
+### 4️⃣ Run the App Locally
+
+```bash
 streamlit run se.py
-📦 Deployment on Streamlit Cloud
-Push your code to GitHub
+```
 
-Go to Streamlit Cloud
+---
 
-Click New app → select your repository
+## ☁️ Deployment on Streamlit Cloud
 
-Set:
+1. Push your code to GitHub
+2. Go to [Streamlit Cloud](https://share.streamlit.io)
+3. Click **New app** → Select your repository
+4. Set:
 
-Main file path: se.py
+   * **Main file path:** `se.py`
+5. Click **Deploy** 🎉
 
-Python version: (e.g., 3.9)
+---
 
-Click Deploy 🎉
+## 📌 Example
 
-📂 Project Structure
-bash
-Copy
-Edit
-📦 your-repo-name
- ┣ 📜 se.py               # Main Streamlit app file
- ┣ 📜 requirements.txt    # Python dependencies
- ┣ 📜 runtime.txt         # Python runtime version for deployment
- ┣ 📜 README.md           # Project documentation
- ┗ 📜 LICENSE             # (Optional) License file
-📝 Requirements
-streamlit
+Input:
 
-gtts
+```
+Hello, how are you?
+```
 
-deep_translator
+Output:
 
-🎯 Usage
-Select input and output languages from dropdowns
+* **Translated (Hindi)** → नमस्ते, आप कैसे हैं?
+* **Speech** → MP3 file generated & playable in the browser
 
-Type the text you want to translate
-
-Click Translate
-
-Listen to the translated text via audio player
-
-Click Download Audio to save the file
-
-📄 License
-This project is licensed under the MIT License – you are free to use, modify, and share it.
+---
